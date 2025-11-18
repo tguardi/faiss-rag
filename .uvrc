@@ -1,0 +1,17 @@
+# UV configuration for restrictive environments
+# Uncomment and configure as needed:
+
+# For internal PyPI mirror:
+# index-url = "https://your-internal-pypi.company.com/simple"
+
+# For proxy (also set environment variables):
+# Extra environment variables in your shell:
+# export HTTP_PROXY="http://proxy.company.com:8080"
+# export HTTPS_PROXY="http://proxy.company.com:8080"
+# export NO_PROXY="localhost,127.0.0.1"
+
+# For additional trusted hosts:
+# trusted-host = ["your-internal-pypi.company.com"]
+
+# Increase timeout for slow networks:
+# timeout = 300

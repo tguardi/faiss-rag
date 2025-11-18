@@ -107,6 +107,74 @@ The static dataset in `data/speeches.json` contains 198 Federal Reserve speeches
 
 The dataset is part of the repository and does not require downloading from external sources.
 
+## Troubleshooting Installation
+
+### Network/Proxy Issues with `uv sync`
+
+If you're in a restrictive environment (corporate network, firewall, etc.) and `uv sync` fails with download errors:
+
+**Option 1: Configure Proxy Settings**
+
+```bash
+# Set proxy environment variables
+export HTTP_PROXY="http://your-proxy:port"
+export HTTPS_PROXY="http://your-proxy:port"
+export NO_PROXY="localhost,127.0.0.1"
+
+# Then try sync
+uv sync
+```
+
+**Option 2: Use pip with requirements.txt**
+
+```bash
+# Install uv first (if not already installed)
+pip install uv
+
+# Use pip to install dependencies
+pip install -r requirements.txt
+
+# Manually install the package
+pip install -e .
+```
+
+**Option 3: Use Internal PyPI Mirror**
+
+If your organization has an internal PyPI mirror, create `.uvrc`:
+
+```toml
+index-url = "https://your-internal-pypi/simple"
+```
+
+**Option 4: Offline Installation**
+
+On a machine with internet access:
+```bash
+# Download all packages
+uv export --format requirements-txt > requirements-full.txt
+pip download -r requirements-full.txt -d packages/
+
+# Transfer packages/ directory to restricted machine
+# Then install:
+pip install --no-index --find-links packages/ -r requirements-full.txt
+```
+
+**Option 5: Increase Timeout**
+
+```bash
+# For slow networks
+uv sync --timeout 300
+```
+
+### Common Error Solutions
+
+| Error | Solution |
+|-------|----------|
+| `Failed to fetch` | Check proxy settings, try `pip install -r requirements.txt` |
+| `Connection timeout` | Increase timeout: `uv sync --timeout 300` |
+| `Certificate verify failed` | Add trusted host or configure SSL certs |
+| `No matching distribution` | Check Python version (`python --version`), needs >=3.10 |
+
 ## Experimentation and Learning
 
 This project is designed to be educational and easy to experiment with. Here are ways to explore and understand semantic search:

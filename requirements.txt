@@ -1,0 +1,10 @@
+# Requirements extracted from pyproject.toml
+# Use this if uv sync fails in restrictive environments
+
+requests>=2.32
+beautifulsoup4>=4.12
+sentence-transformers>=3.0
+faiss-cpu>=1.8
+numpy>=1.26
+tqdm>=4.66
+boto3>=1.34
