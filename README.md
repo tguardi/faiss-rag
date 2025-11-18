@@ -33,6 +33,25 @@ The stack uses:
 
 **📖 Quick Reference:** See **[Quick Reference Card](docs/QUICK_REFERENCE.md)** for command cheat sheet.
 
+**⚡ Alternative: Using pip instead of uv**
+
+If you prefer `pip` or are in a restrictive environment:
+
+```bash
+# Install with pip
+pip install -r requirements.txt
+pip install -e .
+
+# Run commands WITHOUT "uv run" prefix:
+fed-speech-search --rebuild-index
+fed-speech-search --query "inflation expectations"
+fed-speech-search --interactive
+
+# Examples also work:
+python examples/compare_chunking_strategies.py
+python examples/benchmark_search.py "your query"
+```
+
 ### Bedrock RAG Demo (Experimental)
 
 You can optionally ask an Amazon Bedrock model (default: Anthropic Claude Sonnet 4.5) to synthesize an answer from the retrieved chunks.
@@ -128,15 +147,22 @@ uv sync
 **Option 2: Use pip with requirements.txt**
 
 ```bash
-# Install uv first (if not already installed)
-pip install uv
-
 # Use pip to install dependencies
 pip install -r requirements.txt
 
-# Manually install the package
+# Install the package in editable mode
 pip install -e .
+
+# Now run WITHOUT uv prefix:
+fed-speech-search --rebuild-index
+fed-speech-search --query "inflation expectations"
+fed-speech-search --interactive
+
+# Or with python -m:
+python -m semantic_search.cli --query "inflation expectations"
 ```
+
+**Note**: When using `pip install`, you run commands directly (e.g., `fed-speech-search`) instead of with `uv run` prefix.
 
 **Option 3: Use Internal PyPI Mirror**
 
@@ -165,6 +191,18 @@ pip install --no-index --find-links packages/ -r requirements-full.txt
 # For slow networks
 uv sync --timeout 300
 ```
+
+### Command Comparison: uv vs pip
+
+| Task | With uv | With pip |
+|------|---------|----------|
+| Install dependencies | `uv sync` | `pip install -r requirements.txt && pip install -e .` |
+| Run search | `uv run fed-speech-search --query "..."` | `fed-speech-search --query "..."` |
+| Build index | `uv run fed-speech-search --rebuild-index` | `fed-speech-search --rebuild-index` |
+| Interactive mode | `uv run fed-speech-search --interactive` | `fed-speech-search --interactive` |
+| Run examples | `uv run python examples/benchmark_search.py` | `python examples/benchmark_search.py` |
+
+**Key Difference**: With `uv`, use `uv run` prefix. With `pip`, run commands directly.
 
 ### Common Error Solutions
 
