@@ -1,5 +1,21 @@
 # Quick Reference Card
 
+## Setup (First Time Only)
+
+```bash
+# 1. Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh  # macOS/Linux
+# or: pip install uv
+
+# 2. Install dependencies
+uv sync
+
+# 3. Build index
+uv run fed-speech-search --rebuild-index
+```
+
+---
+
 ## Essential Commands
 
 ### Basic Search

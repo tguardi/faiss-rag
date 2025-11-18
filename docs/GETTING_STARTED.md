@@ -4,10 +4,29 @@ Welcome! This guide will help you get started with semantic search and experimen
 
 ## 🚀 5-Minute Quickstart
 
-### 1. Install and Build Index (First Time Only)
+### 0. Install uv (First Time Only)
+
+If you don't have `uv` installed yet:
 
 ```bash
-# Install dependencies
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows (PowerShell)
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Or with pip (if you have Python already)
+pip install uv
+```
+
+After installation, you may need to restart your terminal or run `source ~/.bashrc` (Linux) or `source ~/.zshrc` (macOS).
+
+**What is uv?** It's a fast Python package and project manager that handles dependencies and virtual environments automatically. Learn more at [astral.sh/uv](https://astral.sh/uv).
+
+### 1. Install Dependencies and Build Index (First Time Only)
+
+```bash
+# Install project dependencies
 uv sync
 
 # Build the search index

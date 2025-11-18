@@ -52,7 +52,7 @@ class BedrockRAGClient:
         prompt = self._build_prompt(question, contexts)
         body = {
             "anthropic_version": ANTHROPIC_VERSION,
-            "max_output_tokens": max_output_tokens,
+            "max_tokens": max_output_tokens,
             "temperature": temperature,
             "messages": [
                 {

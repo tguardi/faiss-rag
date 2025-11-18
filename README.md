@@ -1,12 +1,12 @@
 # Federal Reserve Semantic Search
 
-This repository contains 198 Federal Reserve speeches in a static dataset at `data/speeches.json`. The speeches are embedded with the `sentence-transformers/all-MiniLM-L6-v2` model and indexed with FAISS for semantic search via a CLI tool.
+This repository contains 198 Federal Reserve speeches in a static dataset at `data/speeches.json`. The speeches are embedded with the `sentence-transformers/all-MiniLM-L6-v2` model and indexed with FAISS HNSW for fast semantic search via a CLI tool.
 
 The stack uses:
 
 - [uv](https://github.com/astral-sh/uv) for dependency and project management.
 - [sentence-transformers](https://www.sbert.net/) to download the Hugging Face model locally (CPU only).
-- [FAISS](https://github.com/facebookresearch/faiss) as the in-memory vector store.
+- [FAISS](https://github.com/facebookresearch/faiss) HNSW index with cosine similarity as the in-memory vector store.
 
 ## Getting Started
 
@@ -14,10 +14,22 @@ The stack uses:
 
 **⚡ Quick Start:**
 
-1. Install dependencies: `uv sync`
-2. Build the FAISS index: `uv run fed-speech-search --rebuild-index`
-3. Search: `uv run fed-speech-search --query "inflation expectations"`
-4. Interactive mode: `uv run fed-speech-search --interactive`
+1. **Install uv** (if you don't have it):
+   ```bash
+   # macOS/Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   # Windows (PowerShell)
+   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+   # Or with pip
+   pip install uv
+   ```
+
+2. Install dependencies: `uv sync`
+3. Build the FAISS index: `uv run fed-speech-search --rebuild-index`
+4. Search: `uv run fed-speech-search --query "inflation expectations"`
+5. Interactive mode: `uv run fed-speech-search --interactive`
 
 **📖 Quick Reference:** See **[Quick Reference Card](docs/QUICK_REFERENCE.md)** for command cheat sheet.
 

@@ -2,6 +2,29 @@
 
 This directory contains tools and examples to help you understand and experiment with different aspects of semantic search.
 
+## Prerequisites
+
+Before running these examples, make sure you have:
+
+1. **Installed uv**:
+   ```bash
+   # macOS/Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   # Or with pip
+   pip install uv
+   ```
+
+2. **Installed dependencies**:
+   ```bash
+   uv sync
+   ```
+
+3. **Built the index** (at least once):
+   ```bash
+   uv run fed-speech-search --rebuild-index
+   ```
+
 ## Quick Start
 
 ### 1. Compare Chunking Strategies

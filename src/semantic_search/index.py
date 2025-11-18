@@ -107,9 +107,34 @@ def search_index(
 
 
 def _create_index(embeddings: np.ndarray) -> faiss.Index:
+    """
+    Create a FAISS index using HNSW with cosine similarity.
+
+    HNSW (Hierarchical Navigable Small World) provides fast approximate
+    nearest neighbor search with good recall. Since embeddings are normalized,
+    Inner Product (IP) is equivalent to cosine similarity.
+
+    Parameters:
+    - M=32: Number of bi-directional links per node (higher = better recall, more memory)
+    - efConstruction=64: Size of dynamic candidate list during construction (higher = better quality)
+    - efSearch=64: Size of dynamic candidate list during search (set at search time if needed)
+    """
     embeddings = np.asarray(embeddings, dtype="float32")
-    index = faiss.IndexFlatIP(embeddings.shape[1])
+    dim = embeddings.shape[1]
+
+    # Create HNSW index with Inner Product (cosine similarity for normalized vectors)
+    M = 32  # Number of connections per layer
+    index = faiss.IndexHNSWFlat(dim, M, faiss.METRIC_INNER_PRODUCT)
+
+    # Set construction parameters for quality
+    index.hnsw.efConstruction = 64
+
+    # Add vectors to the index
     index.add(embeddings)
+
+    # Set search-time parameter (can be adjusted at query time for speed/quality tradeoff)
+    index.hnsw.efSearch = 64
+
     return index
 
 
