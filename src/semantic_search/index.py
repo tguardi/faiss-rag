@@ -88,7 +88,26 @@ def load_index(index_path: Path) -> faiss.Index:
 
 
 def load_model(model_name: str = MODEL_NAME) -> SentenceTransformer:
-    # Force CPU execution per requirements.
+    """
+    Load the embedding model, checking for a local copy first.
+
+    Priority:
+    1. Check models/ directory in project root
+    2. Fall back to Hugging Face cache (auto-download if needed)
+
+    This allows for portable, offline-capable deployments.
+    """
+    from pathlib import Path
+
+    # Check for local model in models/ directory
+    project_root = Path(__file__).parent.parent.parent
+    local_model_path = project_root / "models" / model_name.split("/")[-1]
+
+    if local_model_path.exists() and local_model_path.is_dir():
+        print(f"Loading model from local path: {local_model_path}")
+        return SentenceTransformer(str(local_model_path), device="cpu")
+
+    # Fall back to Hugging Face cache (will download if not cached)
     return SentenceTransformer(model_name, device="cpu")
 
 

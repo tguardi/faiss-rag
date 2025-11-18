@@ -61,3 +61,5 @@ build/
 
 # Model cache (sentence-transformers downloads to home dir)
 # We don't need to track model files
+models/
+!models/README.md

@@ -63,6 +63,38 @@ The CLI first prints the retrieved chunks and then the Bedrock answer.
 - All embeddings use the CPU-backed `sentence-transformers/all-MiniLM-L6-v2` checkpoint, which is cached locally by Hugging Face on first run.
 - Re-running `fed-speech-search` without `--rebuild-index` reuses the existing FAISS index. The index is built automatically on first query if it doesn't exist.
 
+### Custom Model Storage
+
+By default, the embedding model (`sentence-transformers/all-MiniLM-L6-v2`) is downloaded to the Hugging Face cache directory (`~/.cache/huggingface/hub/`). You can use a custom model location in three ways:
+
+**Option 1: Use Hugging Face Cache (Default)**
+```bash
+# Model automatically cached at:
+# macOS/Linux: ~/.cache/huggingface/hub/
+# Windows: C:\Users\<username>\.cache\huggingface\hub\
+```
+
+**Option 2: Specify Custom Cache Directory**
+
+Set the `TRANSFORMERS_CACHE` environment variable:
+```bash
+export TRANSFORMERS_CACHE=/path/to/your/cache
+uv run fed-speech-search --rebuild-index
+```
+
+**Option 3: Use Project-Local Models (Recommended for Portability)**
+
+Place models in a `models/` directory within the project:
+```bash
+# Create models directory
+mkdir -p models
+
+# Place your model in models/all-MiniLM-L6-v2/
+# The code will automatically check models/ before downloading
+```
+
+The system checks `models/` first, then falls back to the Hugging Face cache. This makes the project portable and works offline once models are in place.
+
 ### Data
 
 The static dataset in `data/speeches.json` contains 198 Federal Reserve speeches covering topics such as:
