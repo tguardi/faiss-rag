@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Claude
+.claude/
+
+# Project specific
+*.faiss
+data/chunks_*.json
+data/index_meta*.json
+data/*.faiss
+tmp.faiss
+
+# Keep the speeches data
+!data/speeches.json
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Distribution / packaging
+.Python
+build/
+*.egg-info/
+
+# uv lock file (optional - uncomment if you want to exclude it)
+# uv.lock
+
+# Model cache (sentence-transformers downloads to home dir)
+# We don't need to track model files
