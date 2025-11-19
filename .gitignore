@@ -50,6 +50,7 @@ tmp.faiss
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb
+!semantic_search_notebook.ipynb
 
 # Distribution / packaging
 .Python
