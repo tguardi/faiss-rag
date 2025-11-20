@@ -17,18 +17,19 @@ The `semantic_search_notebook.ipynb` is a self-contained notebook that reads tex
 1. **Upload the notebook**:
    - Upload `semantic_search_notebook.ipynb` to your SageMaker notebook instance
 
-2. **Create documents folder**:
-   ```bash
-   mkdir documents
-   ```
+2. **Run all cells** (first time):
+   - Click "Run All" or execute cells sequentially
+   - Cell 5 will automatically create a `documents/` folder
+   - First run will download the embedding model (~80MB)
+   - You'll see a warning that no `.txt` files were found
 
 3. **Add your text files**:
-   - Place `.txt` files in the `documents/` folder
+   - Upload or create `.txt` files in the `documents/` folder that was created
    - Any plain text files will work
 
-4. **Run all cells**:
-   - Click "Run All" or execute cells sequentially
-   - First run will download the embedding model (~80MB)
+4. **Re-run cells 5-9**:
+   - This loads your documents and builds the index
+   - Now you're ready to search!
 
 ### Usage
 
