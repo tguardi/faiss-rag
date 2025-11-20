@@ -64,3 +64,8 @@ build/
 # We don't need to track model files
 models/
 !models/README.md
+
+# Documents folder for Jupyter notebook
+# Track the folder and README, but not user's .txt files
+documents/*.txt
+!documents/README.md
