@@ -1,12 +1,27 @@
-# Federal Reserve Semantic Search
+# FAISS Semantic Search
 
-This repository contains 198 Federal Reserve speeches in a static dataset at `data/speeches.json`. The speeches are embedded with the `sentence-transformers/all-MiniLM-L6-v2` model and indexed with FAISS HNSW for fast semantic search via a CLI tool.
+A flexible semantic search system using **FAISS HNSW** with **cosine similarity** for fast, accurate document retrieval.
 
-The stack uses:
+**Default corpus**: 198 Federal Reserve speeches
+**Custom corpora**: Bring your own JSON documents
+**Jupyter notebook**: Share-ready `.ipynb` for SageMaker
 
-- [uv](https://github.com/astral-sh/uv) for dependency and project management.
-- [sentence-transformers](https://www.sbert.net/) to download the Hugging Face model locally (CPU only).
-- [FAISS](https://github.com/facebookresearch/faiss) HNSW index with cosine similarity as the in-memory vector store.
+## Features
+
+✅ **FAISS HNSW index** - Fast approximate search with >99% recall
+✅ **Cosine similarity** - Normalized embeddings with Inner Product
+✅ **Multiple chunking strategies** - Full document, paragraphs, or sliding window
+✅ **Custom corpus support** - Use any JSON document collection
+✅ **Local model storage** - Offline-capable with `models/` directory
+✅ **CLI & Jupyter** - Command-line tool + standalone notebook
+✅ **RAG integration** - Optional Amazon Bedrock for answer synthesis
+
+## Tech Stack
+
+- **[uv](https://github.com/astral-sh/uv)** - Fast dependency and project management
+- **[Sentence Transformers](https://www.sbert.net/)** - High-quality embeddings (CPU)
+- **[FAISS](https://github.com/facebookresearch/faiss)** - HNSW index with cosine similarity
+- **Python 3.10+** - Modern Python with type hints
 
 ## Getting Started
 
@@ -51,6 +66,55 @@ fed-faiss-search --interactive
 python examples/compare_chunking_strategies.py
 python examples/benchmark_search.py "your query"
 ```
+
+### Custom Corpus
+
+Use your own JSON documents instead of Federal Reserve speeches:
+
+```bash
+# Build index from custom JSON file
+uv run fed-faiss-search \
+  --data-file /path/to/your_docs.json \
+  --artifact-prefix my_docs \
+  --rebuild-index
+
+# Search your custom corpus
+uv run fed-faiss-search \
+  --data-file /path/to/your_docs.json \
+  --artifact-prefix my_docs \
+  --query "your search query"
+
+# If documents are nested under a key
+uv run fed-faiss-search \
+  --data-file corpora/custom.json \
+  --data-key documents \
+  --query "your query"
+```
+
+**Expected JSON format:**
+```json
+[
+  {
+    "title": "Document Title",
+    "content": "Full text of the document...",
+    "date": "2025-01-15",  // optional
+    "url": "https://..."    // optional
+  }
+]
+```
+
+See [data/demo_docs.json](data/demo_docs.json) for an example.
+
+### Jupyter Notebook for SageMaker
+
+Share semantic search with colleagues using the standalone notebook:
+
+📓 **[semantic_search_notebook.ipynb](semantic_search_notebook.ipynb)**
+
+- Self-contained (all code in one file)
+- Reads from `documents/` folder (`.txt` files)
+- Works in SageMaker, Jupyter, Colab
+- See [README_NOTEBOOK.md](README_NOTEBOOK.md) for setup guide
 
 ### Bedrock RAG Demo (Experimental)
 
@@ -303,23 +367,30 @@ uv run python examples/benchmark_search.py "financial stability" --top-k 10
 
 ```
 faiss/
-├── src/semantic_search/     # Core source code
-│   ├── cli.py              # Command-line interface
-│   ├── data.py             # Data loading
-│   ├── index.py            # FAISS indexing and search
-│   ├── chunkers.py         # Chunking strategies
-│   └── rag.py              # Amazon Bedrock helper for RAG demos
-├── data/                    # Data and indices
-│   ├── speeches.json       # 198 Federal Reserve speeches
-│   └── *.faiss            # Generated FAISS indices
-├── examples/               # Experimentation tools
-│   ├── README.md          # Experimentation guide
+├── src/semantic_search/         # Core source code
+│   ├── cli.py                  # Command-line interface
+│   ├── data.py                 # Data loading (JSON documents)
+│   ├── index.py                # FAISS HNSW indexing and search
+│   ├── chunkers.py             # Chunking strategies
+│   └── rag.py                  # Amazon Bedrock RAG integration
+├── data/                        # Data and indices
+│   ├── speeches.json           # Default: 198 Federal Reserve speeches
+│   ├── demo_docs.json          # Example custom corpus
+│   └── *.faiss                 # Generated FAISS HNSW indices
+├── models/                      # Local model storage (optional)
+│   └── README.md               # Model setup instructions
+├── examples/                    # Experimentation tools
+│   ├── README.md               # Experimentation guide
 │   ├── compare_chunking_strategies.py
 │   └── benchmark_search.py
-├── docs/                   # Documentation
+├── docs/                        # Documentation
 │   ├── GETTING_STARTED.md      # Beginner-friendly guide
 │   ├── QUICK_REFERENCE.md      # Command cheat sheet
 │   ├── CHUNKING_STRATEGIES.md  # Chunking deep dive
-│   └── RETRIEVAL_PARAMETERS.md # Parameter tuning guide
-└── README.md              # This file
+│   └── RETRIEVAL_PARAMETERS.md # HNSW & parameter tuning
+├── semantic_search_notebook.ipynb  # Standalone Jupyter notebook
+├── README_NOTEBOOK.md           # Notebook setup guide
+├── requirements.txt             # Pip fallback dependencies
+├── .uvrc                        # UV configuration (proxy/mirror)
+└── README.md                    # This file
 ```
