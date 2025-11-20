@@ -2,19 +2,19 @@
 
 A flexible semantic search system using **FAISS HNSW** with **cosine similarity** for fast, accurate document retrieval.
 
-**Default corpus**: 198 Federal Reserve speeches
-**Custom corpora**: Bring your own JSON documents
-**Jupyter notebook**: Share-ready `.ipynb` for SageMaker
+- **Default corpus**: 198 Federal Reserve speeches
+- **Custom corpora**: Bring your own JSON documents
+- **Jupyter notebook**: Share-ready `.ipynb` for SageMaker
 
 ## Features
 
-✅ **FAISS HNSW index** - Fast approximate search with >99% recall
-✅ **Cosine similarity** - Normalized embeddings with Inner Product
-✅ **Multiple chunking strategies** - Full document, paragraphs, or sliding window
-✅ **Custom corpus support** - Use any JSON document collection
-✅ **Local model storage** - Offline-capable with `models/` directory
-✅ **CLI & Jupyter** - Command-line tool + standalone notebook
-✅ **RAG integration** - Optional Amazon Bedrock for answer synthesis
+- ✅ **FAISS HNSW index** - Fast approximate search with >99% recall
+- ✅ **Cosine similarity** - Normalized embeddings with Inner Product
+- ✅ **Multiple chunking strategies** - Full document, paragraphs, or sliding window
+- ✅ **Custom corpus support** - Use any JSON document collection
+- ✅ **Local model storage** - Offline-capable with `models/` directory
+- ✅ **CLI & Jupyter** - Command-line tool + standalone notebook
+- ✅ **RAG integration** - Optional Amazon Bedrock for answer synthesis
 
 ## Tech Stack
 
@@ -42,9 +42,9 @@ A flexible semantic search system using **FAISS HNSW** with **cosine similarity*
    ```
 
 2. Install dependencies: `uv sync`
-3. Build the FAISS index: `uv run fed-faiss-search --rebuild-index`
-4. Search: `uv run fed-faiss-search --query "inflation expectations"`
-5. Interactive mode: `uv run fed-faiss-search --interactive`
+3. Build the FAISS index: `uv run faiss-search --rebuild-index`
+4. Search: `uv run faiss-search --query "inflation expectations"`
+5. Interactive mode: `uv run faiss-search --interactive`
 
 **📖 Quick Reference:** See **[Quick Reference Card](docs/QUICK_REFERENCE.md)** for command cheat sheet.
 
@@ -58,9 +58,9 @@ pip install -r requirements.txt
 pip install -e .
 
 # Run commands WITHOUT "uv run" prefix:
-fed-faiss-search --rebuild-index
-fed-faiss-search --query "inflation expectations"
-fed-faiss-search --interactive
+faiss-search --rebuild-index
+faiss-search --query "inflation expectations"
+faiss-search --interactive
 
 # Examples also work:
 python examples/compare_chunking_strategies.py
@@ -73,19 +73,19 @@ Use your own JSON documents instead of Federal Reserve speeches:
 
 ```bash
 # Build index from custom JSON file
-uv run fed-faiss-search \
+uv run faiss-search \
   --data-file /path/to/your_docs.json \
   --artifact-prefix my_docs \
   --rebuild-index
 
 # Search your custom corpus
-uv run fed-faiss-search \
+uv run faiss-search \
   --data-file /path/to/your_docs.json \
   --artifact-prefix my_docs \
   --query "your search query"
 
 # If documents are nested under a key
-uv run fed-faiss-search \
+uv run faiss-search \
   --data-file corpora/custom.json \
   --data-key documents \
   --query "your query"
@@ -123,7 +123,7 @@ You can optionally ask an Amazon Bedrock model (default: Anthropic Claude Sonnet
 1. Configure AWS credentials with Bedrock access (for example via `aws configure`) and set the desired region (e.g., `us-east-1`).
 2. Run:
    ```bash
-   uv run fed-faiss-search \
+   uv run faiss-search \
      --query "How is AI affecting the banking system?" \
      --rag \
      --rag-top-k 4 \
@@ -144,7 +144,7 @@ The CLI first prints the retrieved chunks and then the Bedrock answer.
 - Each chunker has its own FAISS/metadata files under `data/`. Supplying the same `--chunker` during queries ensures the CLI loads the matching index.
 - The speech data is stored in `data/speeches.json` and contains 198 Federal Reserve speeches.
 - All embeddings use the CPU-backed `sentence-transformers/all-MiniLM-L6-v2` checkpoint, which is cached locally by Hugging Face on first run.
-- Re-running `fed-faiss-search` without `--rebuild-index` reuses the existing FAISS index. The index is built automatically on first query if it doesn't exist.
+- Re-running `faiss-search` without `--rebuild-index` reuses the existing FAISS index. The index is built automatically on first query if it doesn't exist.
 
 ### Custom Model Storage
 
@@ -162,7 +162,7 @@ By default, the embedding model (`sentence-transformers/all-MiniLM-L6-v2`) is do
 Set the `TRANSFORMERS_CACHE` environment variable:
 ```bash
 export TRANSFORMERS_CACHE=/path/to/your/cache
-uv run fed-faiss-search --rebuild-index
+uv run faiss-search --rebuild-index
 ```
 
 **Option 3: Use Project-Local Models (Recommended for Portability)**
@@ -193,12 +193,12 @@ The dataset is part of the repository and does not require downloading from exte
 **Bring your own documents.** You can point the CLI at any JSON corpus:
 
 ```bash
-uv run fed-faiss-search \
+uv run faiss-search \
   --data-file /path/to/my_docs.json \
   --artifact-prefix my_docs \
   --rebuild-index
 
-uv run fed-faiss-search \
+uv run faiss-search \
   --data-file /path/to/my_docs.json \
   --artifact-prefix my_docs \
   --query "emerging risks"
@@ -234,15 +234,15 @@ pip install -r requirements.txt
 pip install -e .
 
 # Now run WITHOUT uv prefix:
-fed-faiss-search --rebuild-index
-fed-faiss-search --query "inflation expectations"
-fed-faiss-search --interactive
+faiss-search --rebuild-index
+faiss-search --query "inflation expectations"
+faiss-search --interactive
 
 # Or with python -m:
 python -m semantic_search.cli --query "inflation expectations"
 ```
 
-**Note**: When using `pip install`, you run commands directly (e.g., `fed-faiss-search`) instead of with `uv run` prefix.
+**Note**: When using `pip install`, you run commands directly (e.g., `faiss-search`) instead of with `uv run` prefix.
 
 **Option 3: Use Internal PyPI Mirror**
 
@@ -277,9 +277,9 @@ uv sync --timeout 300
 | Task | With uv | With pip |
 |------|---------|----------|
 | Install dependencies | `uv sync` | `pip install -r requirements.txt && pip install -e .` |
-| Run search | `uv run fed-faiss-search --query "..."` | `fed-faiss-search --query "..."` |
-| Build index | `uv run fed-faiss-search --rebuild-index` | `fed-faiss-search --rebuild-index` |
-| Interactive mode | `uv run fed-faiss-search --interactive` | `fed-faiss-search --interactive` |
+| Run search | `uv run faiss-search --query "..."` | `faiss-search --query "..."` |
+| Build index | `uv run faiss-search --rebuild-index` | `faiss-search --rebuild-index` |
+| Interactive mode | `uv run faiss-search --interactive` | `faiss-search --interactive` |
 | Run examples | `uv run python examples/benchmark_search.py` | `python examples/benchmark_search.py` |
 
 **Key Difference**: With `uv`, use `uv run` prefix. With `pip`, run commands directly.
@@ -302,23 +302,23 @@ This project is designed to be educational and easy to experiment with. Here are
 **Compare chunking strategies** on the same query:
 ```bash
 # Try all three chunkers
-uv run fed-faiss-search --chunker full --query "AI in banking"
-uv run fed-faiss-search --chunker paragraphs --query "AI in banking"
-uv run fed-faiss-search --chunker sliding_window --query "AI in banking"
+uv run faiss-search --chunker full --query "AI in banking"
+uv run faiss-search --chunker paragraphs --query "AI in banking"
+uv run faiss-search --chunker sliding_window --query "AI in banking"
 ```
 
 **Adjust number of results**:
 ```bash
 # Get more results for broader exploration
-uv run fed-faiss-search --query "inflation" --top-k 20
+uv run faiss-search --query "inflation" --top-k 20
 
 # Get fewer for focused reading
-uv run fed-faiss-search --query "inflation" --top-k 3
+uv run faiss-search --query "inflation" --top-k 3
 ```
 
 **Use interactive mode** for rapid testing:
 ```bash
-uv run fed-faiss-search --interactive
+uv run faiss-search --interactive
 ```
 
 ### Analysis Tools
