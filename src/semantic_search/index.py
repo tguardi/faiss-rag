@@ -12,7 +12,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 
 from .chunkers import Chunk, get_chunker
-from .data import Speech
+from .data import Document
 
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
@@ -25,20 +25,22 @@ class IndexArtifacts:
     chunk_metadata_path: Path
     model_name: str
     chunker_name: str
+    corpus_prefix: str
 
 
 def build_faiss_index(
-    speeches: Sequence[Speech],
+    documents: Sequence[Document],
     data_dir: Path,
     model_name: str = MODEL_NAME,
     batch_size: int = 16,
     chunker_name: str = "full",
+    corpus_prefix: str = "speeches",
 ) -> IndexArtifacts:
-    """Encode the provided speeches and persist a FAISS index to disk."""
+    """Encode the provided documents and persist a FAISS index to disk."""
     chunker = get_chunker(chunker_name)
-    chunks = chunker.chunk_speeches(speeches)
+    chunks = chunker.chunk_documents(documents)
     if not chunks:
-        raise ValueError("No chunks were produced from the provided speeches.")
+        raise ValueError("No chunks were produced from the provided documents.")
 
     texts = [chunk.text for chunk in chunks]
 
@@ -56,16 +58,17 @@ def build_faiss_index(
     index = _create_index(embeddings)
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    paths = get_artifact_paths(data_dir, chunker_name)
+    paths = get_artifact_paths(data_dir, chunker_name, corpus_prefix=corpus_prefix)
     faiss.write_index(index, str(paths["index"]))
     print(f"FAISS index written to {paths['index']}")
 
     metadata = {
         "model_name": model_name,
         "vector_dim": embeddings.shape[1],
-        "speech_count": len(speeches),
+        "document_count": len(documents),
         "chunk_count": len(chunks),
         "chunker": chunker_name,
+        "corpus_prefix": corpus_prefix,
         "updated_at": datetime.now(tz=timezone.utc).isoformat(),
     }
 
@@ -78,6 +81,7 @@ def build_faiss_index(
         chunk_metadata_path=paths["chunks"],
         model_name=model_name,
         chunker_name=chunker_name,
+        corpus_prefix=corpus_prefix,
     )
 
 
@@ -157,12 +161,27 @@ def _create_index(embeddings: np.ndarray) -> faiss.Index:
     return index
 
 
-def get_artifact_paths(data_dir: Path, chunker_name: str) -> Dict[str, Path]:
-    safe = _sanitize(chunker_name)
+def get_artifact_paths(
+    data_dir: Path,
+    chunker_name: str,
+    corpus_prefix: str = "speeches",
+) -> Dict[str, Path]:
+    chunker_safe = _sanitize(chunker_name)
+    corpus_safe = _sanitize(corpus_prefix or "speeches")
+
+    if corpus_safe == "speeches":
+        index_name = f"speeches_{chunker_safe}.faiss"
+        metadata_name = f"index_meta_{chunker_safe}.json"
+        chunk_name = f"chunks_{chunker_safe}.json"
+    else:
+        index_name = f"{corpus_safe}_{chunker_safe}.faiss"
+        metadata_name = f"index_meta_{corpus_safe}_{chunker_safe}.json"
+        chunk_name = f"chunks_{corpus_safe}_{chunker_safe}.json"
+
     return {
-        "index": data_dir / f"speeches_{safe}.faiss",
-        "metadata": data_dir / f"index_meta_{safe}.json",
-        "chunks": data_dir / f"chunks_{safe}.json",
+        "index": data_dir / index_name,
+        "metadata": data_dir / metadata_name,
+        "chunks": data_dir / chunk_name,
     }
 
 
@@ -176,7 +195,8 @@ def _write_chunk_metadata(path: Path, chunks: Sequence[Chunk]) -> None:
     serialised = [
         {
             "chunk_id": chunk.chunk_id,
-            "speech_index": chunk.speech_index,
+            "document_index": chunk.document_index,
+            "speech_index": chunk.document_index,  # backward compatibility for existing tooling
             "chunk_index": chunk.chunk_index,
             "text": chunk.text,
         }

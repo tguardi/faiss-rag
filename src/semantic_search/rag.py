@@ -14,7 +14,7 @@ ANTHROPIC_VERSION = "bedrock-2023-05-31"
 @dataclass
 class RagSegment:
     title: str
-    speaker: str
+    attribution: str
     date: str
     url: str
     chunk_index: int
@@ -22,11 +22,11 @@ class RagSegment:
     text: str
 
     def to_prompt_block(self, position: int) -> str:
+        url_line = f"URL: {self.url}\n" if self.url else ""
         return (
-            f"[{position}] {self.title} — {self.speaker} ({self.date}) "
+            f"[{position}] {self.title} — {self.attribution} ({self.date}) "
             f"(chunk {self.chunk_index + 1}, score={self.score:.3f})\n"
-            f"URL: {self.url}\n"
-            f"Excerpt:\n{self.text.strip()}\n"
+            f"{url_line}Excerpt:\n{self.text.strip()}\n"
         )
 
 
@@ -77,9 +77,9 @@ class BedrockRAGClient:
     @staticmethod
     def _build_prompt(question: str, contexts: Sequence[RagSegment]) -> str:
         instructions = (
-            "You are assisting with a semantic search demo over recent Federal Reserve speeches. "
+            "You are assisting with a semantic search demo over a curated document collection. "
             "Answer the user's question using only the provided excerpts. "
-            "Cite the relevant speech titles or speakers inline. "
+            "Cite the relevant document titles or sources inline. "
             "If the excerpts do not contain the answer, say so explicitly."
         )
         context_blocks = "\n".join(

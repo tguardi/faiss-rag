@@ -65,7 +65,7 @@ To use a different model:
 
 1. Download/copy model to `models/<model-name>/`
 2. Update `MODEL_NAME` in `src/semantic_search/index.py`
-3. Rebuild index: `uv run fed-speech-search --rebuild-index`
+3. Rebuild index: `uv run fed-faiss-search --rebuild-index`
 
 ## Note
 

@@ -3,39 +3,42 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Sequence
 
-from .data import Speech
+from .data import Document
 
 
 @dataclass
 class Chunk:
-    speech_index: int
+    document_index: int
     chunk_index: int
     text: str
 
     @property
     def chunk_id(self) -> str:
-        return f"{self.speech_index}-{self.chunk_index}"
+        return f"{self.document_index}-{self.chunk_index}"
 
 
 class BaseChunker:
     name: str = "base"
     description: str = "Base chunker interface."
 
-    def chunk_speeches(self, speeches: Sequence[Speech]) -> List[Chunk]:
+    def chunk_documents(self, documents: Sequence[Document]) -> List[Chunk]:
         raise NotImplementedError
+
+    def chunk_speeches(self, speeches: Sequence[Document]) -> List[Chunk]:  # pragma: no cover - backward compat
+        return self.chunk_documents(speeches)
 
 
 class FullSpeechChunker(BaseChunker):
     name = "full"
-    description = "Treat each speech as a single chunk."
+    description = "Treat each document as a single chunk."
 
-    def chunk_speeches(self, speeches: Sequence[Speech]) -> List[Chunk]:
+    def chunk_documents(self, documents: Sequence[Document]) -> List[Chunk]:
         chunks: List[Chunk] = []
-        for idx, speech in enumerate(speeches):
-            text = (speech.content or "").strip()
+        for idx, document in enumerate(documents):
+            text = (document.content or "").strip()
             if not text:
                 continue
-            chunks.append(Chunk(speech_index=idx, chunk_index=0, text=text))
+            chunks.append(Chunk(document_index=idx, chunk_index=0, text=text))
         return chunks
 
 
@@ -47,12 +50,12 @@ class ParagraphChunker(BaseChunker):
         self.min_chars = min_chars
         self.max_chars = max_chars
 
-    def chunk_speeches(self, speeches: Sequence[Speech]) -> List[Chunk]:
+    def chunk_documents(self, documents: Sequence[Document]) -> List[Chunk]:
         chunks: List[Chunk] = []
-        for idx, speech in enumerate(speeches):
+        for idx, document in enumerate(documents):
             paragraphs = [
                 paragraph.strip()
-                for paragraph in (speech.content or "").split("\n\n")
+                for paragraph in (document.content or "").split("\n\n")
                 if paragraph.strip()
             ]
             if not paragraphs:
@@ -67,7 +70,7 @@ class ParagraphChunker(BaseChunker):
                     return
                 text = "\n\n".join(current).strip()
                 if text:
-                    chunks.append(Chunk(speech_index=idx, chunk_index=chunk_idx, text=text))
+                    chunks.append(Chunk(document_index=idx, chunk_index=chunk_idx, text=text))
                     chunk_idx += 1
                 current = []
                 current_len = 0
@@ -102,11 +105,11 @@ class SlidingWindowChunker(BaseChunker):
         self.window_size = window_size
         self.overlap = overlap
 
-    def chunk_speeches(self, speeches: Sequence[Speech]) -> List[Chunk]:
+    def chunk_documents(self, documents: Sequence[Document]) -> List[Chunk]:
         chunks: List[Chunk] = []
         step = self.window_size - self.overlap
-        for idx, speech in enumerate(speeches):
-            words = (speech.content or "").split()
+        for idx, document in enumerate(documents):
+            words = (document.content or "").split()
             if not words:
                 continue
             chunk_idx = 0
@@ -115,7 +118,7 @@ class SlidingWindowChunker(BaseChunker):
                 if not window_words:
                     continue
                 text = " ".join(window_words)
-                chunks.append(Chunk(speech_index=idx, chunk_index=chunk_idx, text=text))
+                chunks.append(Chunk(document_index=idx, chunk_index=chunk_idx, text=text))
                 chunk_idx += 1
                 if len(window_words) < self.window_size:
                     break

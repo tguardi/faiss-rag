@@ -11,7 +11,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh  # macOS/Linux
 uv sync
 
 # 3. Build index
-uv run fed-speech-search --rebuild-index
+uv run fed-faiss-search --rebuild-index
 ```
 
 ---
@@ -21,21 +21,21 @@ uv run fed-speech-search --rebuild-index
 ### Basic Search
 ```bash
 # Single query
-uv run fed-speech-search --query "inflation expectations"
+uv run fed-faiss-search --query "inflation expectations"
 
 # Interactive mode
-uv run fed-speech-search --interactive
+uv run fed-faiss-search --interactive
 
 # More results
-uv run fed-speech-search --query "AI" --top-k 20
+uv run fed-faiss-search --query "AI" --top-k 20
 ```
 
 ### Compare Chunking Strategies
 ```bash
 # Try different chunkers
-uv run fed-speech-search --chunker full --query "monetary policy"
-uv run fed-speech-search --chunker paragraphs --query "monetary policy"
-uv run fed-speech-search --chunker sliding_window --query "monetary policy"
+uv run fed-faiss-search --chunker full --query "monetary policy"
+uv run fed-faiss-search --chunker paragraphs --query "monetary policy"
+uv run fed-faiss-search --chunker sliding_window --query "monetary policy"
 ```
 
 ### Analysis Tools
@@ -50,10 +50,31 @@ uv run python examples/benchmark_search.py "your query"
 ### Index Management
 ```bash
 # Rebuild index
-uv run fed-speech-search --rebuild-index
+uv run fed-faiss-search --rebuild-index
 
 # Use different chunker
-uv run fed-speech-search --rebuild-index --chunker sliding_window
+uv run fed-faiss-search --rebuild-index --chunker sliding_window
+```
+
+### Custom Corpus
+```bash
+# Point to your own JSON corpus
+uv run fed-faiss-search \
+  --data-file /path/to/my_docs.json \
+  --artifact-prefix my_docs \
+  --rebuild-index
+
+# Search the same corpus (artifact-prefix keeps indexes separate)
+uv run fed-faiss-search \
+  --data-file /path/to/my_docs.json \
+  --artifact-prefix my_docs \
+  --query "supply chain stress"
+
+# If the JSON stores documents under a nested key
+uv run fed-faiss-search \
+  --data-file corpora/custom.json \
+  --data-key documents \
+  --query "emerging risks"
 ```
 
 ---
@@ -93,14 +114,14 @@ uv run fed-speech-search --rebuild-index --chunker sliding_window
 
 ## Common Workflows
 
-### Finding Speeches on a Topic
+### Finding Documents on a Topic
 ```bash
 # Step 1: Broad search
-uv run fed-speech-search --query "financial stability" --top-k 10
+uv run fed-faiss-search --query "financial stability" --top-k 10
 
 # Step 2: Review top results
 # Step 3: Refine query if needed
-uv run fed-speech-search --query "bank liquidity risks" --top-k 5
+uv run fed-faiss-search --query "bank liquidity risks" --top-k 5
 ```
 
 ### Comparing Approaches
@@ -114,7 +135,7 @@ uv run python examples/benchmark_search.py "AI in finance"
 ### Exploring a New Topic
 ```bash
 # Start interactive
-uv run fed-speech-search --interactive
+uv run fed-faiss-search --interactive
 
 # Then try variations:
 query> monetary policy
@@ -143,7 +164,7 @@ def load_model():
     return SentenceTransformer(model_name, device="cpu")
 ```
 
-After changing, rebuild: `uv run fed-speech-search --rebuild-index`
+After changing, rebuild: `uv run fed-faiss-search --rebuild-index`
 
 ---
 
@@ -161,10 +182,10 @@ After changing, rebuild: `uv run fed-speech-search --rebuild-index`
 
 ## Dataset Info
 
-- **Total speeches**: 198
-- **Date range**: Recent Federal Reserve speeches
+- **Default corpus**: 198 recent Federal Reserve speeches (`data/speeches.json`)
 - **Topics**: Monetary policy, banking regulation, financial stability, AI, etc.
-- **File**: `data/speeches.json` (4.0MB)
+- **Custom corpora**: Use `--data-file` to point at any JSON file (optionally `--data-key` if the documents live under a nested key).
+- **Index isolation**: Supply `--artifact-prefix` (defaults to the file name) so each corpus keeps separate FAISS/chunk metadata files.
 
 ---
 
@@ -172,9 +193,10 @@ After changing, rebuild: `uv run fed-speech-search --rebuild-index`
 
 ```
 Project Files:
-  speeches.json          data/speeches.json
-  FAISS indices         data/speeches_*.faiss
-  Chunk metadata        data/chunks_*.json
+  speeches.json          data/speeches.json (default corpus)
+  Custom corpora         anywhere on disk via --data-file
+  FAISS indices         data/<prefix>_<chunker>.faiss
+  Chunk metadata        data/chunks_<prefix>_<chunker>.json
 
 Source Code:
   Main CLI              src/semantic_search/cli.py
@@ -253,6 +275,6 @@ Documentation:
 
 **Quick Help**: Run any command with `--help` flag for options
 ```bash
-uv run fed-speech-search --help
+uv run fed-faiss-search --help
 uv run python examples/benchmark_search.py --help
 ```

@@ -1,1 +1,1 @@
-"""Semantic search over Federal Reserve speeches."""
+"""Semantic search over text corpora (default: Federal Reserve speeches)."""

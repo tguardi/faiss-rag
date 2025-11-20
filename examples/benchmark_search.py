@@ -18,7 +18,7 @@ from textwrap import shorten
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from semantic_search.data import load_speeches
+from semantic_search.data import load_documents
 from semantic_search.chunkers import available_chunkers
 from semantic_search.index import (
     build_faiss_index,
@@ -30,12 +30,34 @@ from semantic_search.index import (
 )
 
 
-def benchmark_chunkers(query, top_k=5):
+def _resolve_path(path: Path) -> Path:
+    expanded = Path(path).expanduser()
+    if expanded.is_absolute():
+        return expanded
+    return (Path.cwd() / expanded).resolve()
+
+
+def _determine_prefix(data_path: Path, override: str | None, default: Path) -> str:
+    if override:
+        trimmed = override.strip()
+        if trimmed:
+            return trimmed
+    try:
+        if data_path.resolve() == default.resolve():
+            return "speeches"
+    except FileNotFoundError:
+        pass
+    return data_path.stem or "corpus"
+
+
+def benchmark_chunkers(query, top_k=5, data_file=None, data_key=None, artifact_prefix=None):
     """Run the same query across all chunking strategies."""
     data_dir = Path(__file__).parent.parent / "data"
-    speeches_path = data_dir / "speeches.json"
+    default_data_file = data_dir / "speeches.json"
+    data_path = _resolve_path(data_file or default_data_file)
+    prefix = _determine_prefix(data_path, artifact_prefix, default_data_file)
 
-    speeches = load_speeches(speeches_path)
+    documents = load_documents(data_path, dataset_key=data_key)
     model = load_model()
     chunker_names = list(available_chunkers().keys())
 
@@ -51,7 +73,11 @@ def benchmark_chunkers(query, top_k=5):
         print(f"CHUNKER: {chunker_name.upper()}")
         print("=" * 80)
 
-        artifact_paths = get_artifact_paths(data_dir, chunker_name)
+        artifact_paths = get_artifact_paths(
+            data_dir,
+            chunker_name,
+            corpus_prefix=prefix,
+        )
 
         # Build index if it doesn't exist
         if (
@@ -59,7 +85,12 @@ def benchmark_chunkers(query, top_k=5):
             or not artifact_paths["chunks"].exists()
         ):
             print(f"Building index for {chunker_name} chunker...")
-            build_faiss_index(speeches, data_dir, chunker_name=chunker_name)
+            build_faiss_index(
+                documents,
+                data_dir,
+                chunker_name=chunker_name,
+                corpus_prefix=prefix,
+            )
 
         # Load index and search
         chunks = load_chunk_metadata(artifact_paths["chunks"])
@@ -74,12 +105,14 @@ def benchmark_chunkers(query, top_k=5):
                 continue
 
             chunk = chunks[idx]
-            speech_idx = chunk.get("speech_index", 0)
-            if speech_idx < 0 or speech_idx >= len(speeches):
+            doc_idx = chunk.get("document_index")
+            if doc_idx is None:
+                doc_idx = chunk.get("speech_index", 0)
+            if doc_idx < 0 or doc_idx >= len(documents):
                 continue
 
-            speech = speeches[speech_idx]
-            snippet_text = chunk.get("text", speech.content).replace(
+            document = documents[doc_idx]
+            snippet_text = chunk.get("text", document.content).replace(
                 "\n", " "
             )
             snippet = shorten(snippet_text, width=150, placeholder="...")
@@ -87,16 +120,16 @@ def benchmark_chunkers(query, top_k=5):
             result = {
                 "rank": rank,
                 "score": score,
-                "title": speech.title,
-                "speaker": speech.speaker,
-                "date": speech.date,
+                "title": document.title,
+                "source": document.attribution,
+                "date": document.display_date,
                 "snippet": snippet,
             }
             results.append(result)
 
             print(f"\n[{rank}] Score: {score:.3f}")
-            print(f"    {speech.title}")
-            print(f"    {speech.speaker} ({speech.date})")
+            print(f"    {document.title}")
+            print(f"    {document.attribution} ({document.display_date})")
             print(f"    {snippet}")
 
         results_by_chunker[chunker_name] = results
@@ -136,11 +169,33 @@ def main():
         default=5,
         help="Number of results to retrieve (default: 5)",
     )
+    parser.add_argument(
+        "--data-file",
+        type=Path,
+        default=Path("data/speeches.json"),
+        help="JSON file containing the corpus (default: data/speeches.json)",
+    )
+    parser.add_argument(
+        "--data-key",
+        type=str,
+        help="JSON key that stores the list of documents (default: auto-detect)",
+    )
+    parser.add_argument(
+        "--artifact-prefix",
+        type=str,
+        help="Prefix for FAISS/metadata artifacts (default: derived from data-file)",
+    )
 
     args = parser.parse_args()
 
     try:
-        benchmark_chunkers(args.query, args.top_k)
+        benchmark_chunkers(
+            args.query,
+            args.top_k,
+            data_file=args.data_file,
+            data_key=args.data_key,
+            artifact_prefix=args.artifact_prefix,
+        )
     except KeyboardInterrupt:
         print("\n\nBenchmark interrupted.")
         return 1

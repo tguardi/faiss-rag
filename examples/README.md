@@ -22,7 +22,7 @@ Before running these examples, make sure you have:
 
 3. **Built the index** (at least once):
    ```bash
-   uv run fed-speech-search --rebuild-index
+   uv run fed-faiss-search --rebuild-index
    ```
 
 ## Quick Start
@@ -76,12 +76,12 @@ uv run python examples/benchmark_search.py "AI" --top-k 10
 Use the interactive mode to rapidly test different queries:
 
 ```bash
-uv run fed-speech-search --interactive --chunker paragraphs
+uv run fed-faiss-search --interactive --chunker paragraphs
 ```
 
 Then try the same session with a different chunker:
 ```bash
-uv run fed-speech-search --interactive --chunker sliding_window
+uv run fed-faiss-search --interactive --chunker sliding_window
 ```
 
 ## Understanding Chunking Strategies
@@ -100,7 +100,7 @@ uv run fed-speech-search --interactive --chunker sliding_window
 
 **Example queries:**
 ```bash
-uv run fed-speech-search --chunker full --query "economic outlook"
+uv run fed-faiss-search --chunker full --query "economic outlook"
 ```
 
 ### Paragraph Chunker (Default)
@@ -117,7 +117,7 @@ uv run fed-speech-search --chunker full --query "economic outlook"
 
 **Example queries:**
 ```bash
-uv run fed-speech-search --chunker paragraphs --query "inflation expectations"
+uv run fed-faiss-search --chunker paragraphs --query "inflation expectations"
 ```
 
 ### Sliding Window Chunker
@@ -134,7 +134,7 @@ uv run fed-speech-search --chunker paragraphs --query "inflation expectations"
 
 **Example queries:**
 ```bash
-uv run fed-speech-search --chunker sliding_window --query "quantitative tightening"
+uv run fed-faiss-search --chunker sliding_window --query "quantitative tightening"
 ```
 
 ## Experimentation Ideas
@@ -163,10 +163,10 @@ Experiment with different numbers of results:
 
 ```bash
 # Few results (high precision)
-uv run fed-speech-search --query "AI in banking" --top-k 3
+uv run fed-faiss-search --query "AI in banking" --top-k 3
 
 # Many results (high recall)
-uv run fed-speech-search --query "AI in banking" --top-k 20
+uv run fed-faiss-search --query "AI in banking" --top-k 20
 ```
 
 ### 3. Custom Chunker Development
@@ -183,7 +183,7 @@ class MyCustomChunker(BaseChunker):
 
 Then register it in `available_chunkers()` and use it:
 ```bash
-uv run fed-speech-search --chunker my_custom --query "test"
+uv run fed-faiss-search --chunker my_custom --query "test"
 ```
 
 ## Measuring Success
@@ -203,29 +203,29 @@ uv run fed-speech-search --chunker my_custom --query "test"
 
 ### Dataset Analysis
 
-Explore the speech dataset:
+Explore the default speech dataset (or your own documents):
 
 ```python
 from pathlib import Path
-from semantic_search.data import load_speeches
+from semantic_search.data import load_documents
 
-speeches = load_speeches(Path("data/speeches.json"))
+documents = load_documents(Path("data/speeches.json"))
 
 # Find speeches by speaker
-bowman_speeches = [s for s in speeches if "Bowman" in s.speaker]
-print(f"Michelle Bowman gave {len(bowman_speeches)} speeches")
+bowman_speeches = [d for d in documents if (d.speaker or "").find("Bowman") >= 0]
+print(f"Michelle Bowman appears in {len(bowman_speeches)} documents")
 
 # Find recent speeches
-recent = speeches[:10]  # Already sorted by date
-for s in recent:
-    print(f"{s.date}: {s.title}")
+recent = documents[:10]  # Already sorted by date
+for doc in recent:
+    print(f"{doc.date}: {doc.title}")
 
 # Analyze topics
-inflation_speeches = [
-    s for s in speeches
-    if "inflation" in s.title.lower()
+inflation_docs = [
+    d for d in documents
+    if "inflation" in d.title.lower()
 ]
-print(f"{len(inflation_speeches)} speeches mention 'inflation' in title")
+print(f"{len(inflation_docs)} documents mention 'inflation' in the title")
 ```
 
 ### Index Inspection
@@ -250,14 +250,14 @@ Understand what the model is learning:
 
 ```bash
 # Try semantically similar queries
-uv run fed-speech-search --query "inflation"
-uv run fed-speech-search --query "price increases"
-uv run fed-speech-search --query "cost of living"
+uv run fed-faiss-search --query "inflation"
+uv run fed-faiss-search --query "price increases"
+uv run fed-faiss-search --query "cost of living"
 
 # Try different phrasings
-uv run fed-speech-search --query "lower interest rates"
-uv run fed-speech-search --query "cut rates"
-uv run fed-speech-search --query "accommodative policy"
+uv run fed-faiss-search --query "lower interest rates"
+uv run fed-faiss-search --query "cut rates"
+uv run fed-faiss-search --query "accommodative policy"
 ```
 
 ## Tips for Experimentation

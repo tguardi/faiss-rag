@@ -27,9 +27,9 @@ The stack uses:
    ```
 
 2. Install dependencies: `uv sync`
-3. Build the FAISS index: `uv run fed-speech-search --rebuild-index`
-4. Search: `uv run fed-speech-search --query "inflation expectations"`
-5. Interactive mode: `uv run fed-speech-search --interactive`
+3. Build the FAISS index: `uv run fed-faiss-search --rebuild-index`
+4. Search: `uv run fed-faiss-search --query "inflation expectations"`
+5. Interactive mode: `uv run fed-faiss-search --interactive`
 
 **📖 Quick Reference:** See **[Quick Reference Card](docs/QUICK_REFERENCE.md)** for command cheat sheet.
 
@@ -43,9 +43,9 @@ pip install -r requirements.txt
 pip install -e .
 
 # Run commands WITHOUT "uv run" prefix:
-fed-speech-search --rebuild-index
-fed-speech-search --query "inflation expectations"
-fed-speech-search --interactive
+fed-faiss-search --rebuild-index
+fed-faiss-search --query "inflation expectations"
+fed-faiss-search --interactive
 
 # Examples also work:
 python examples/compare_chunking_strategies.py
@@ -59,7 +59,7 @@ You can optionally ask an Amazon Bedrock model (default: Anthropic Claude Sonnet
 1. Configure AWS credentials with Bedrock access (for example via `aws configure`) and set the desired region (e.g., `us-east-1`).
 2. Run:
    ```bash
-   uv run fed-speech-search \
+   uv run fed-faiss-search \
      --query "How is AI affecting the banking system?" \
      --rag \
      --rag-top-k 4 \
@@ -80,7 +80,7 @@ The CLI first prints the retrieved chunks and then the Bedrock answer.
 - Each chunker has its own FAISS/metadata files under `data/`. Supplying the same `--chunker` during queries ensures the CLI loads the matching index.
 - The speech data is stored in `data/speeches.json` and contains 198 Federal Reserve speeches.
 - All embeddings use the CPU-backed `sentence-transformers/all-MiniLM-L6-v2` checkpoint, which is cached locally by Hugging Face on first run.
-- Re-running `fed-speech-search` without `--rebuild-index` reuses the existing FAISS index. The index is built automatically on first query if it doesn't exist.
+- Re-running `fed-faiss-search` without `--rebuild-index` reuses the existing FAISS index. The index is built automatically on first query if it doesn't exist.
 
 ### Custom Model Storage
 
@@ -98,7 +98,7 @@ By default, the embedding model (`sentence-transformers/all-MiniLM-L6-v2`) is do
 Set the `TRANSFORMERS_CACHE` environment variable:
 ```bash
 export TRANSFORMERS_CACHE=/path/to/your/cache
-uv run fed-speech-search --rebuild-index
+uv run fed-faiss-search --rebuild-index
 ```
 
 **Option 3: Use Project-Local Models (Recommended for Portability)**
@@ -125,6 +125,22 @@ The static dataset in `data/speeches.json` contains 198 Federal Reserve speeches
 - Community development
 
 The dataset is part of the repository and does not require downloading from external sources.
+
+**Bring your own documents.** You can point the CLI at any JSON corpus:
+
+```bash
+uv run fed-faiss-search \
+  --data-file /path/to/my_docs.json \
+  --artifact-prefix my_docs \
+  --rebuild-index
+
+uv run fed-faiss-search \
+  --data-file /path/to/my_docs.json \
+  --artifact-prefix my_docs \
+  --query "emerging risks"
+```
+
+If your JSON stores the list of documents under a nested key, add `--data-key` (e.g., `--data-key documents`). The `artifact-prefix` keeps each corpus isolated so you can maintain multiple indexes side-by-side.
 
 ## Troubleshooting Installation
 
@@ -154,15 +170,15 @@ pip install -r requirements.txt
 pip install -e .
 
 # Now run WITHOUT uv prefix:
-fed-speech-search --rebuild-index
-fed-speech-search --query "inflation expectations"
-fed-speech-search --interactive
+fed-faiss-search --rebuild-index
+fed-faiss-search --query "inflation expectations"
+fed-faiss-search --interactive
 
 # Or with python -m:
 python -m semantic_search.cli --query "inflation expectations"
 ```
 
-**Note**: When using `pip install`, you run commands directly (e.g., `fed-speech-search`) instead of with `uv run` prefix.
+**Note**: When using `pip install`, you run commands directly (e.g., `fed-faiss-search`) instead of with `uv run` prefix.
 
 **Option 3: Use Internal PyPI Mirror**
 
@@ -197,9 +213,9 @@ uv sync --timeout 300
 | Task | With uv | With pip |
 |------|---------|----------|
 | Install dependencies | `uv sync` | `pip install -r requirements.txt && pip install -e .` |
-| Run search | `uv run fed-speech-search --query "..."` | `fed-speech-search --query "..."` |
-| Build index | `uv run fed-speech-search --rebuild-index` | `fed-speech-search --rebuild-index` |
-| Interactive mode | `uv run fed-speech-search --interactive` | `fed-speech-search --interactive` |
+| Run search | `uv run fed-faiss-search --query "..."` | `fed-faiss-search --query "..."` |
+| Build index | `uv run fed-faiss-search --rebuild-index` | `fed-faiss-search --rebuild-index` |
+| Interactive mode | `uv run fed-faiss-search --interactive` | `fed-faiss-search --interactive` |
 | Run examples | `uv run python examples/benchmark_search.py` | `python examples/benchmark_search.py` |
 
 **Key Difference**: With `uv`, use `uv run` prefix. With `pip`, run commands directly.
@@ -222,23 +238,23 @@ This project is designed to be educational and easy to experiment with. Here are
 **Compare chunking strategies** on the same query:
 ```bash
 # Try all three chunkers
-uv run fed-speech-search --chunker full --query "AI in banking"
-uv run fed-speech-search --chunker paragraphs --query "AI in banking"
-uv run fed-speech-search --chunker sliding_window --query "AI in banking"
+uv run fed-faiss-search --chunker full --query "AI in banking"
+uv run fed-faiss-search --chunker paragraphs --query "AI in banking"
+uv run fed-faiss-search --chunker sliding_window --query "AI in banking"
 ```
 
 **Adjust number of results**:
 ```bash
 # Get more results for broader exploration
-uv run fed-speech-search --query "inflation" --top-k 20
+uv run fed-faiss-search --query "inflation" --top-k 20
 
 # Get fewer for focused reading
-uv run fed-speech-search --query "inflation" --top-k 3
+uv run fed-faiss-search --query "inflation" --top-k 3
 ```
 
 **Use interactive mode** for rapid testing:
 ```bash
-uv run fed-speech-search --interactive
+uv run fed-faiss-search --interactive
 ```
 
 ### Analysis Tools

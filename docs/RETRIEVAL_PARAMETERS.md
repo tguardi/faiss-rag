@@ -14,7 +14,7 @@ This guide explains the key parameters that affect semantic search quality and h
 
 **How to change**:
 ```bash
-uv run fed-speech-search --query "inflation" --top-k 10
+uv run fed-faiss-search --query "inflation" --top-k 10
 ```
 
 #### Trade-offs
@@ -101,7 +101,7 @@ See all models: https://www.sbert.net/docs/pretrained_models.html
 #### Switching Models
 
 1. Edit `load_model()` in `src/semantic_search/index.py`
-2. Rebuild index: `uv run fed-speech-search --rebuild-index`
+2. Rebuild index: `uv run fed-faiss-search --rebuild-index`
 3. Model will download automatically on first use
 
 **Warning**: Different models = different vectors = must rebuild index!
@@ -305,12 +305,12 @@ For better recall, try multiple related queries:
 
 ```bash
 # Instead of one query
-uv run fed-speech-search --query "inflation"
+uv run fed-faiss-search --query "inflation"
 
 # Try variations
-uv run fed-speech-search --query "inflation expectations"
-uv run fed-speech-search --query "price stability"
-uv run fed-speech-search --query "consumer price index"
+uv run fed-faiss-search --query "inflation expectations"
+uv run fed-faiss-search --query "price stability"
+uv run fed-faiss-search --query "consumer price index"
 ```
 
 Or use the benchmark script:
@@ -385,7 +385,7 @@ scores, indices = index.search(avg_embedding.reshape(1, -1), k=10)
 Establish baseline performance:
 
 ```bash
-uv run fed-speech-search --query "your typical query" --top-k 10
+uv run fed-faiss-search --query "your typical query" --top-k 10
 ```
 
 Document:
@@ -400,7 +400,7 @@ Test different k values:
 ```bash
 for k in 3 5 10 20 50; do
     echo "Testing k=$k"
-    uv run fed-speech-search --query "query" --top-k $k
+    uv run fed-faiss-search --query "query" --top-k $k
 done
 ```
 

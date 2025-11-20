@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-fed-speech-search = "semantic_search.cli:main"
+fed-faiss-search = "semantic_search.cli:main"
 
 [build-system]
 requires = ["hatchling"]

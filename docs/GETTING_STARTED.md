@@ -30,7 +30,7 @@ After installation, you may need to restart your terminal or run `source ~/.bash
 uv sync
 
 # Build the search index
-uv run fed-speech-search --rebuild-index
+uv run fed-faiss-search --rebuild-index
 ```
 
 This will take ~2 minutes. You only need to do this once (or when changing chunkers).
@@ -38,7 +38,7 @@ This will take ~2 minutes. You only need to do this once (or when changing chunk
 ### 2. Try Your First Search
 
 ```bash
-uv run fed-speech-search --query "inflation expectations"
+uv run fed-faiss-search --query "inflation expectations"
 ```
 
 You should see results like:
@@ -55,7 +55,7 @@ Snippet: 10. See David Lebow and Ekaterina Peneva (2024), " Inflation Perception
 ### 3. Try Interactive Mode
 
 ```bash
-uv run fed-speech-search --interactive
+uv run fed-faiss-search --interactive
 ```
 
 Then type different queries:
@@ -78,13 +78,13 @@ See how different chunkers affect results:
 
 ```bash
 # Default paragraphs chunker
-uv run fed-speech-search --query "stress testing" --top-k 3
+uv run fed-faiss-search --query "stress testing" --top-k 3
 
 # Full speech chunker
-uv run fed-speech-search --chunker full --query "stress testing" --top-k 3
+uv run fed-faiss-search --chunker full --query "stress testing" --top-k 3
 
 # Sliding window chunker
-uv run fed-speech-search --chunker sliding_window --query "stress testing" --top-k 3
+uv run fed-faiss-search --chunker sliding_window --query "stress testing" --top-k 3
 ```
 
 **What to notice:**
@@ -186,8 +186,8 @@ Snippet: Preview of matched text...
 
 **Example queries:**
 ```bash
-uv run fed-speech-search --chunker full --query "economic outlook 2025"
-uv run fed-speech-search --chunker full --query "monetary policy stance"
+uv run fed-faiss-search --chunker full --query "economic outlook 2025"
+uv run fed-faiss-search --chunker full --query "monetary policy stance"
 ```
 
 ### Use `--chunker paragraphs` (default) when:
@@ -198,8 +198,8 @@ uv run fed-speech-search --chunker full --query "monetary policy stance"
 
 **Example queries:**
 ```bash
-uv run fed-speech-search --query "inflation expectations"
-uv run fed-speech-search --query "bank stress testing"
+uv run fed-faiss-search --query "inflation expectations"
+uv run fed-faiss-search --query "bank stress testing"
 ```
 
 ### Use `--chunker sliding_window` when:
@@ -212,8 +212,8 @@ uv run fed-speech-search --query "bank stress testing"
 
 **Example queries:**
 ```bash
-uv run fed-speech-search --chunker sliding_window --query "Basel III capital buffers"
-uv run fed-speech-search --chunker sliding_window --query "liquidity coverage ratio"
+uv run fed-faiss-search --chunker sliding_window --query "Basel III capital buffers"
+uv run fed-faiss-search --chunker sliding_window --query "liquidity coverage ratio"
 ```
 
 ---
@@ -224,13 +224,13 @@ uv run fed-speech-search --chunker sliding_window --query "liquidity coverage ra
 
 ```bash
 # Get just the top match
-uv run fed-speech-search --query "AI risks" --top-k 1
+uv run fed-faiss-search --query "AI risks" --top-k 1
 
 # Get a few relevant results (default)
-uv run fed-speech-search --query "AI risks" --top-k 5
+uv run fed-faiss-search --query "AI risks" --top-k 5
 
 # Get many results for research
-uv run fed-speech-search --query "AI risks" --top-k 20
+uv run fed-faiss-search --query "AI risks" --top-k 20
 ```
 
 **Rule of thumb:**
@@ -270,7 +270,7 @@ uv run fed-speech-search --query "AI risks" --top-k 20
 ### Session 1: Learning about Inflation
 
 ```bash
-uv run fed-speech-search --interactive
+uv run fed-faiss-search --interactive
 ```
 
 ```
@@ -291,8 +291,8 @@ query> PCE core inflation
 
 ```bash
 # Try different chunkers to see what works
-uv run fed-speech-search --chunker paragraphs --query "rate cuts" --top-k 10
-uv run fed-speech-search --chunker full --query "rate cuts" --top-k 10
+uv run fed-faiss-search --chunker paragraphs --query "rate cuts" --top-k 10
+uv run fed-faiss-search --chunker full --query "rate cuts" --top-k 10
 
 # Compare
 uv run python examples/benchmark_search.py "interest rate policy"
@@ -302,13 +302,13 @@ uv run python examples/benchmark_search.py "interest rate policy"
 
 ```bash
 # Cast a wide net
-uv run fed-speech-search --query "artificial intelligence" --top-k 30
+uv run fed-faiss-search --query "artificial intelligence" --top-k 30
 
 # Get specific
-uv run fed-speech-search --query "AI risks financial system" --top-k 10
+uv run fed-faiss-search --query "AI risks financial system" --top-k 10
 
 # Find specific topics
-uv run fed-speech-search --chunker sliding_window --query "machine learning credit decisions"
+uv run fed-faiss-search --chunker sliding_window --query "machine learning credit decisions"
 ```
 
 ---
@@ -366,7 +366,7 @@ A: Start with `paragraphs` (default). Use `benchmark_search.py` to compare if un
 A: Start with 5. Increase if you're not finding what you need. Decrease if too many irrelevant results.
 
 **Q: Can I search for specific people?**
-A: Yes! Try: `uv run fed-speech-search --query "Jerome Powell policy views"`
+A: Yes! Try: `uv run fed-faiss-search --query "Jerome Powell policy views"`
 
 **Q: Why do I need to rebuild the index?**
 A: Only when changing chunkers or modifying chunker parameters. The index stores embeddings specific to each chunking strategy.

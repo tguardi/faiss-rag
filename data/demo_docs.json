@@ -1,0 +1,27 @@
+{
+  "documents": [
+    {
+      "title": "Case Study: Rate Cuts",
+      "author": "Christopher J. Waller",
+      "date": "2025-11-17",
+      "url": "https://www.federalreserve.gov/newsevents/speech/waller20251117a.htm",
+      "location": "Society of Professional Economists",
+      "metadata": {
+        "source": "Speech Archive",
+        "category": "Monetary Policy"
+      },
+      "content": "Thank you to the Society for the honor of addressing your annual meeting. In doing a little research on the SPE's history, I noted that one goal cited by the business economists who founded this group was creating a forum to discuss the divergence between real-world challenges and economic theory. That task is pressing when business profits, losses, and the jobs of employees are on the line, and it is equally important when considering macroeconomic policy. Today I will describe why a careful path toward continuing rate cuts remains appropriate."
+    },
+    {
+      "title": "Field Notes: Midwest Outreach",
+      "author": "Maria Rodriguez",
+      "date": "2025-09-04",
+      "url": "https://www.example.com/midwest-outreach-report",
+      "metadata": {
+        "source": "Community Affairs Desk",
+        "category": "Outreach"
+      },
+      "content": "During the Kansas City roundtable we heard repeated concerns about access to credit for equipment upgrades and the long tail of supply-chain disruptions. Community bankers emphasized that digital onboarding sped up small-business approvals, but staffing shortages now limit relationship-building. Participants asked for clearer guidance on liquidity backstops when credit unions experience deposit volatility."
+    }
+  ]
+}
